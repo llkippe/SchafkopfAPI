@@ -1,6 +1,8 @@
 const Game = require('./game/game.js');
 const Card = require('./game/card.js');
 
+
+
 testData = {
     "type": "Sauspiel", // Sauspiel, Wenz, Farbsolo
     "suit": "e",
@@ -62,16 +64,30 @@ testData = {
     ]
 }
 
+winnerAvg = [0,0,0,0];
+timeAvg = 0;
 
-let id = 0;
-
-
-const game = new Game(id, testData);
-
-//game.print();
-
-while(!game.gameEnded) {
-    game.currentPlayer.playCard();
+for(let i = 0; i < 100000; i++) {
+    const startTime = process.hrtime();
+    const game = new Game(false ,i, testData);
+    while(!game.gameEnded) {
+        game.currentPlayer.playCard();
+    }
+    const winner = game.getWinner();
+    winnerAvg[winner-1]++;
+    const endTime = process.hrtime(startTime);
+    const executionTime = (endTime[0] * 1000) + (endTime[1] / 1000000);
+    timeAvg += executionTime;
 }
+
+
+console.log(winnerAvg);
+
+console.log(timeAvg/1000);
+
+
+
+
+
 
 

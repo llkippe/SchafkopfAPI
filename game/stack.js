@@ -9,9 +9,11 @@ class Stack {
         
         this.content.push({card: card, player: player});
 
+        if(this.game.protocol) {
         console.log("added to Stack")
         card.print();
         player.print();
+        }
 
         this.game.currentPlayer = player.nextPlayer;
         // check for sauass

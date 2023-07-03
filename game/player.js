@@ -20,9 +20,11 @@ class Player {
         }
 
         if (this.validCards.length > 0) {
-            const randIndex = parseInt(Math.random() * this.validCards.length);
+            const length = this.validCards.length;
+            const randIndex = Math.floor(Math.random() * length);
+
             card = this.validCards[randIndex];
-            this.removeCard(card);
+            this.removeCard(card, randIndex, this.validCards.length);
             this.game.stack.addCard(card, this);
             return true;
         }
@@ -59,16 +61,49 @@ class Player {
         return false;
     }
 
-    removeCard(card) {
-        this.cards = this.cards.filter(c => !c.isCard(card.symbol, card.suit));
+    isCardInCards(card) {
+        for (const c of this.cards) {
+            if (c.isCard(card.symbol, card.suit)) return true;
+        }
+        return false;
+    }
+
+    removeCard(card,randIndex, length) {
+        if(card == null) {
+            console.log("!!!ERROR!!!");
+            this.game.protocol = true;
+            this.game.print();
+            console.log("cards");
+        for (const card of this.cards) card.print();
+        console.log("valid cards");
+        for (const card of this.validCards) card.print();
+        console.log(randIndex, length);
+        card.print();
+        
+        }
+
+        if (this.isCardInCards(card)) {
+            this.cards = this.cards.filter(c => !c.isCard(card.symbol, card.suit));
+            return;
+        }
+
+        console.log("!!!ERROR!!!");
+        card.print();
+        console.log("cards");
+        for (const card of this.cards) card.print();
+        console.log("valid cards");
+        for (const card of this.validCards) card.print();
     }
 
     print() {
-        console.log(`Player ${this.id} -> Score: ${this.score}, Friends: ${this.friends.length} `);
-        
+        if (this.game.protocol) {
+            console.log(`Player ${this.id} -> Score: ${this.score}, Friends: ${this.friends.length} `);
+        }
+
     }
     printCards() {
-        for (const card of this.cards) card.print();
+            console.log("cards::::" + this.cards.length)
+            for (const card of this.cards) card.print();
     }
 
 }
