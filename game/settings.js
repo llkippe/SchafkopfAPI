@@ -1,7 +1,8 @@
 const Card = require('./card.js');
 
 class Settings {
-    constructor(type, suit) {
+    constructor(game, type, suit) {
+        this.game = game;
         this.type = type;
         this.suit = suit;
         this.suits = ["e", "b", "h", "s"]
@@ -15,23 +16,20 @@ class Settings {
 
     createTrumpOrder() {
         if (this.type == "Wenz") {
-            this.suits.forEach(suit => this.trumpOrder.push(new Card("U", suit)));
+            this.suits.forEach(suit => this.trumpOrder.push(new Card(this.game, "U", suit)));
             return;
         }
         // Sauspiel, Farbsolo, Ramsch
-        this.suits.forEach(suit => this.trumpOrder.push(new Card("O", suit)));
-        this.suits.forEach(suit => this.trumpOrder.push(new Card("U", suit)));
+        this.suits.forEach(suit => this.trumpOrder.push(new Card(this.game,"O", suit)));
+        this.suits.forEach(suit => this.trumpOrder.push(new Card(this.game,"U", suit)));
 
         let trumpSuit = "h"; // Ramsch, Sauspiel
         if (this.type == "Farbsolo") trumpSuit = this.suit; // Farbsolo
 
         this.symbols.forEach(symbol => {
-            if (symbol != "U" && symbol != "O") this.trumpOrder.push(new Card(trumpSuit, symbol));
-        });
-
-        
+            if (symbol != "U" && symbol != "O") this.trumpOrder.push(new Card(this.game, symbol, trumpSuit));
+        });   
     }
-
 
     createSuitOrder() {
         if (this.type === "Wenz") {
@@ -39,8 +37,6 @@ class Settings {
         } else {
           this.suitOrder = this.symbols.filter(symbol => symbol !== "U" && symbol !== "O");
         }
-      
-        console.log(this.suitOrder);
       }
 
     
