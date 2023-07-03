@@ -1,4 +1,5 @@
 const Game = require('./game/game.js');
+const Card = require('./game/card.js');
 
 testData = {
     "type": "Sauspiel", // Sauspiel, Wenz, Farbsolo
@@ -67,6 +68,10 @@ let id = 0;
 
 const game = new Game(id, testData);
 
-game.print();
+//game.print();
+
+while(!game.gameEnded) {
+    game.currentPlayer.playCard();
+}
 
 

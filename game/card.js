@@ -29,6 +29,8 @@ class Card {
         return this.symbol == symbol && this.suit == suit;
     }
 
+    
+
     getPoints() {
         if (this.symbol == "A") return 11;
         if (this.symbol == "10") return 10;
@@ -39,7 +41,7 @@ class Card {
     }
 
     print() {
-        console.log(`Cards: ${this.suit}, ${this.symbol}, ${this.points}, rank: ${this.getRank()}, isTrump: ${this.isTrump()}`);
+        console.log(`Cards: ${this.suit}${this.symbol}, points: ${this.points}, rank: ${this.getRank()}, isTrump: ${this.isTrump()}`);
     }
 }
 
