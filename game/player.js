@@ -68,7 +68,7 @@ class Player {
         return false;
     }
 
-    removeCard(card,randIndex, length) {
+    removeCard(card, randIndex, length) {
         this.cards = this.cards.filter(c => !c.isCard(card.symbol, card.suit));
         return;
     }
@@ -89,6 +89,26 @@ class Player {
     }
     printCards() {
         for (const card of this.cards) card.print();
+    }
+
+    getJSON() {
+        const cards = [];
+        const friendIds = [];
+
+        this.cards.forEach(c => {
+            cards.push({"symbol": c.symbol, "suit": c.suit });
+        });
+
+        this.friends.forEach(f => {
+            friendIds.push(f.id);
+        });
+
+
+        return {
+            name: `Player ${this.id}`,
+            cards: cards,
+            friendIds: friendIds
+        }
     }
 
 }

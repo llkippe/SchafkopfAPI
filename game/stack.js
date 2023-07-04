@@ -1,3 +1,5 @@
+const { json } = require("express");
+
 class Stack {
     constructor(game) {
         this.game = game;
@@ -10,9 +12,9 @@ class Stack {
         this.content.push({card: card, player: player});
 
         if(this.game.protocol) {
-        console.log("added to Stack")
-        card.print();
-        player.print();
+            console.log("added to Stack")
+            card.print();
+            player.print();
         }
 
         this.handleAnnouncedAce(card);
@@ -62,6 +64,22 @@ class Stack {
         winning.print();
         console.log("content")
         for(let c of this.content) c.card.print();
+    }
+
+    getJSON() {
+        let json = [];
+
+        this.content.forEach(c => {
+            const card = {"symbol": c.card.symbol,"suit": c.card.suit};
+            const playerId = c.player.id;
+
+            json.push({
+                card: card,
+                playerId: playerId
+            });
+        });
+
+        return json;
     }
 
 
