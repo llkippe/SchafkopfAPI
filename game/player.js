@@ -69,41 +69,26 @@ class Player {
     }
 
     removeCard(card,randIndex, length) {
-        if(card == null) {
-            console.log("!!!ERROR!!!");
-            this.game.protocol = true;
-            this.game.print();
-            console.log("cards");
-        for (const card of this.cards) card.print();
-        console.log("valid cards");
-        for (const card of this.validCards) card.print();
-        console.log(randIndex, length);
-        card.print();
-        
-        }
+        this.cards = this.cards.filter(c => !c.isCard(card.symbol, card.suit));
+        return;
+    }
 
-        if (this.isCardInCards(card)) {
-            this.cards = this.cards.filter(c => !c.isCard(card.symbol, card.suit));
-            return;
+    getTotalScore() {
+        let score = this.score;
+        for (const p of this.friends) {
+            score += p.score;
         }
-
-        console.log("!!!ERROR!!!");
-        card.print();
-        console.log("cards");
-        for (const card of this.cards) card.print();
-        console.log("valid cards");
-        for (const card of this.validCards) card.print();
+        return score;
     }
 
     print() {
         if (this.game.protocol) {
-            console.log(`Player ${this.id} -> Score: ${this.score}, Friends: ${this.friends.length} `);
+            console.log(`Player ${this.id} -> Score: ${this.score}, total: ${this.getTotalScore()}, Friends: ${this.friends.length} `);
         }
 
     }
     printCards() {
-            console.log("cards::::" + this.cards.length)
-            for (const card of this.cards) card.print();
+        for (const card of this.cards) card.print();
     }
 
 }

@@ -1,7 +1,7 @@
 const Card = require('./card.js');
 
 class Settings {
-    constructor(game, type, suit) {
+    constructor(game, type, suit, annPlayer) {
         this.game = game;
         this.type = type;
         this.suit = suit;
@@ -9,6 +9,8 @@ class Settings {
         this.symbols = ["A", "10", "K", "O", "U", "9", "8", "7"]
         this.trumpOrder = []; // contains complete cards
         this.suitOrder = []; // contains only strings of symbols
+        this.annPlayer = annPlayer;
+
 
         this.createTrumpOrder();
         this.createSuitOrder();
@@ -37,8 +39,16 @@ class Settings {
         } else {
           this.suitOrder = this.symbols.filter(symbol => symbol !== "U" && symbol !== "O");
         }
-      }
+    }
 
+    isAnnoucedAce(card) {
+        if(this.type != "Sauspiel") return false;
+
+        if(card.isCard("A", this.suit)) return true;
+
+        return false;
+    }
+    
     
 }
 

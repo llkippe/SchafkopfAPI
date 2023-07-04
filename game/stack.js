@@ -15,8 +15,11 @@ class Stack {
         player.print();
         }
 
+        this.handleAnnouncedAce(card);
+
         this.game.currentPlayer = player.nextPlayer;
-        // check for sauass
+
+    
         
         if(this.content.length == 4) this.game.newRound(this.getWinnerContent().player, this.getPoints());
     }
@@ -38,6 +41,20 @@ class Stack {
         return points;
     }
 
+    handleAnnouncedAce(card) {
+        if(this.game.settings.isAnnoucedAce(card)) {
+            this.game.currentPlayer.friends.push(this.game.players[this.game.settings.annPlayer]);
+            this.game.players[this.game.settings.annPlayer].friends.push(this.game.currentPlayer);
+
+            const otherTeam = [];
+            for (const p of this.game.players) {
+                if(p.friends.length == 0) otherTeam.push(p);
+            }
+            otherTeam[0].friends.push(otherTeam[1]);
+            otherTeam[1].friends.push(otherTeam[0]);
+        }
+    }
+
     print() {
         const winning  = this.getWinnerContent().card;
         
@@ -46,6 +63,8 @@ class Stack {
         console.log("content")
         for(let c of this.content) c.card.print();
     }
+
+
 }
 
 module.exports = Stack;

@@ -8,13 +8,15 @@ class Game {
         this.id = id;
         this.protocol = protocol;
 
-        this.settings = new Settings(this, gamedata.type, gamedata.suit);
+        this.settings = new Settings(this, gamedata.type, gamedata.suit, gamedata.annPlayer);
         this.stack = new Stack(this);
-        this.players = [new Player(this, 1), new Player(this, 2), new Player(this, 3), new Player(this, 4)];
+        this.players = [new Player(this, 0), new Player(this, 1), new Player(this, 2), new Player(this, 3)];
         this.createPlayers(gamedata.players);
-        this.round = 0;
-        this.currentPlayer = this.players[0];
+        this.round = gamedata.round;
+        this.currentPlayer = this.players[gamedata.currentPlayer];
         this.gameEnded = false;
+
+        
     }
 
     createPlayers(playersData) {
@@ -23,10 +25,16 @@ class Game {
 
             playersData[i].cards.forEach(card => {
                 cards.push(new Card(this, card.symbol, card.suit));
-
             });
+
             this.players[i].cards = cards;
             this.players[i].nextPlayer = this.players[(i + 1) % this.players.length];
+
+            for(const friend of playersData[i].friendIds) {
+                this.players[i].friends.push(this.players[friend]);
+            }
+
+
             if(this.protocol) {
             this.players[i].print();
             this.players[i].printCards();
@@ -48,7 +56,7 @@ class Game {
             if (this.protocol) {
                 for (const p of this.players) {
                     p.print();
-                    p.printCards();
+                    p.printCards(); 
                 }
 
                 console.log("Game Ended");
@@ -57,11 +65,15 @@ class Game {
     }
 
     getWinner() {
-        let p = this.players[0];
+        let p = [this.players[0]];
         for (let i = 1; i < this.players.length; i++) {
-            if (this.players[i].score > p.score) p = this.players[i];
+            if (this.players[i].getTotalScore() > p[0].getTotalScore()) p = [this.players[i]];
+            else if(this.players[i].getTotalScore() == p[0].getTotalScore()) p.push(this.players[i]);
+
         }
-        return p.id;
+        let ids = [];
+        for(const pla of p) ids.push(pla.id);
+        return ids;
     }
 
 
