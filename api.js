@@ -15,7 +15,7 @@ testData = {
     "currentPlayer": 0,
     "round": 0,
     "friendKnown": false,
-    
+
 
     "stack": [
         
@@ -145,11 +145,11 @@ while(game.round < 0) {
 
 const game = new Game(true ,0, testData);
 
-while(!game.gameEnded) {
+//while(!game.gameEnded) {
     const simulation = new Simulation(game,game.currentPlayer.id);
     const card = simulation.findBestCard();
     game.currentPlayer.playCard(card);
-}
+//}
 
 
 
