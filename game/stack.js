@@ -44,7 +44,7 @@ class Stack {
     }
 
     handleAnnouncedAce(card) {
-        if(this.game.settings.isAnnoucedAce(card)) {
+        if(!this.game.settings.friendsKnown && this.game.settings.isAnnoucedAce(card)) {
             this.game.currentPlayer.friends.push(this.game.players[this.game.settings.annPlayer]);
             this.game.players[this.game.settings.annPlayer].friends.push(this.game.currentPlayer);
 
@@ -80,6 +80,7 @@ class Stack {
         });
 
         return json;
+
     }
 
 

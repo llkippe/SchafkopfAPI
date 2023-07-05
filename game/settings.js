@@ -1,7 +1,7 @@
 const Card = require('./card.js');
 
 class Settings {
-    constructor(game, type, suit, annPlayer) {
+    constructor(game, type, suit, annPlayer,friendsKnown) {
         this.game = game;
         this.type = type;
         this.suit = suit;
@@ -10,6 +10,7 @@ class Settings {
         this.trumpOrder = []; // contains complete cards
         this.suitOrder = []; // contains only strings of symbols
         this.annPlayer = annPlayer;
+        this.friendsKnown = friendsKnown;
 
 
         this.createTrumpOrder();

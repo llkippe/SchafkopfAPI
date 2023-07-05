@@ -1,4 +1,6 @@
 const Game = require('./game/game.js');
+const Simulation = require('./simulation.js');
+
 
 /*
 - friends solo game
@@ -7,28 +9,23 @@ const Game = require('./game/game.js');
 
 
 testData = {
-    "type": "Wenz", // Sauspiel, Wenz, Farbsolo, Ramsch
+    "type": "Sauspiel", // Sauspiel, Wenz, Farbsolo, Ramsch
     "suit": "b",
-    "annPlayer": 0,
-    "currentPlayer": 2,
-    "round": 0, 
+    "annPlayer": 1,
+    "currentPlayer": 0,
+    "round": 0,
+    "friendKnown": false,
+    
 
     "stack": [
-        {
-            card: {"symbol": "A", "suit": "b"},
-            playerId: 0
-        },
-        {
-            card: { "symbol": "O", "suit": "b" },
-            playerId: 1
-        }
+        
     ],
 
     "players": [
         {
             "name": "Player 1",
             "cards": [
-                //{ "symbol": "A", "suit": "b" },
+                { "symbol": "A", "suit": "b" },
                 { "symbol": "A", "suit": "h" },
                 { "symbol": "10", "suit": "s" },
                 { "symbol": "K", "suit": "e" },
@@ -37,12 +34,13 @@ testData = {
                 { "symbol": "9", "suit": "b" },
                 { "symbol": "9", "suit": "s" }
             ],
-            "friendIds": []
+            "friendIds": [],
+            "score": 0
         },
         {
             "name": "Player 2",
             "cards": [
-                //{ "symbol": "O", "suit": "b" },
+                { "symbol": "O", "suit": "b" },
                 { "symbol": "O", "suit": "h" },
                 { "symbol": "9", "suit": "h" },
                 { "symbol": "7", "suit": "h" },
@@ -51,7 +49,8 @@ testData = {
                 { "symbol": "8", "suit": "b" },
                 { "symbol": "8", "suit": "s" }
             ],
-            "friendIds": []
+            "friendIds": [],
+            "score": 0
         },
         {
             "name": "Player 3",
@@ -65,7 +64,8 @@ testData = {
                 { "symbol": "10", "suit": "h" },
                 { "symbol": "7", "suit": "s" }
             ],
-            "friendIds": []
+            "friendIds": [],
+            "score": 0
         },
         {
             "name": "Player 4",
@@ -79,20 +79,20 @@ testData = {
                 { "symbol": "9", "suit": "e" },
                 { "symbol": "10", "suit": "b" }
             ],
-            "friendIds": []
+            "friendIds": [],
+            "score": 0
         }
     ]
 }
 
-
-
-const TIMES_RUNNING = 1;
+/*
+const TIMES_RUNNING = 100000;
 winnerAvg = [0,0,0,0];
 timeAvg = 0;
 
 for(let i = 0; i < TIMES_RUNNING; i++) {
     const startTime = process.hrtime();
-    const game = new Game(true ,i, testData);
+    const game = new Game(false ,i, testData);
 
     while(!game.gameEnded) {
         game.currentPlayer.playCard();
@@ -111,6 +111,45 @@ for(let i = 0; i < TIMES_RUNNING; i++) {
 console.log(winnerAvg);
 
 console.log(timeAvg, timeAvg/TIMES_RUNNING);
+*/
+
+
+/*
+const game1 = new Game(true ,0, testData);
+
+const game2 = new Game(true, 1, game1.getJSON());
+
+
+while(!game1.gameEnded) {
+game1.currentPlayer.createValidCards();
+const validCards1 = game1.currentPlayer.validCards;
+game1.currentPlayer.playCard(validCards1[0]);
+game2.currentPlayer.createValidCards();
+const validCards2 = game2.currentPlayer.validCards;
+game2.currentPlayer.playCard(validCards2[0]);
+}
+
+const winner1 = game1.getWinner();
+console.log(winner1);
+const winner2 = game2.getWinner();
+console.log(winner2);
+*/
+
+
+/*
+while(game.round < 0) {
+    game.currentPlayer.createValidCards();
+    const validCards = game.currentPlayer.validCards;
+    game.currentPlayer.playCard(validCards[0]);
+}*/
+
+const game = new Game(true ,0, testData);
+
+while(!game.gameEnded) {
+    const simulation = new Simulation(game,game.currentPlayer.id);
+    const card = simulation.findBestCard();
+    game.currentPlayer.playCard(card);
+}
 
 
 

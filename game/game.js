@@ -3,6 +3,7 @@ const Stack = require('./stack.js');
 const Player = require('./player.js');
 const Card = require('./card.js');
 
+
 class Game {
     constructor(protocol, id, gamedata) {
         this.id = id;
@@ -10,26 +11,25 @@ class Game {
         this.round = gamedata.round;
         this.gameEnded = false;
 
-        this.settings = new Settings(this, gamedata.type, gamedata.suit, gamedata.annPlayer);
+
+        this.settings = new Settings(this, gamedata.type, gamedata.suit, gamedata.annPlayer, gamedata.friendsKnown);
         this.stack = new Stack(this);
         this.players = [new Player(this, 0), new Player(this, 1), new Player(this, 2), new Player(this, 3)];
         this.createPlayers(gamedata.players);
         this.currentPlayer = this.players[gamedata.currentPlayer];
 
         this.createStack(gamedata.stack);
-        
-        
-        
     }
 
     createPlayers(playersData) {
-        if (this.round == 0) { // add solo friends
-            if(this.settings.type == "Wenz" || this.settings.type == "Farbsolo") {
+        if (!this.settings.friendsKnown) { // add solo friends
+            if (this.settings.type == "Ramsch") this.settings.friendsKnown = true;
+            else if (this.settings.type == "Wenz" || this.settings.type == "Farbsolo") {
                 let team = [];
-                for(const p of this.players) if(p != this.players[this.settings.annPlayer]) team.push(p);
-                team[0].friends.push(team[1],team[2]);
-                team[1].friends.push(team[0],team[2]);
-                team[2].friends.push(team[0],team[1]);
+                for (const p of this.players) if (p != this.players[this.settings.annPlayer]) team.push(p);
+                team[0].friends.push(team[1], team[2]);
+                team[1].friends.push(team[0], team[2]);
+                team[2].friends.push(team[0], team[1]);
             }
         }
 
@@ -43,11 +43,14 @@ class Game {
 
             this.players[i].cards = cards;
             this.players[i].nextPlayer = this.players[(i + 1) % this.players.length];
+            this.players[i].score = playersData[i].score;
 
-            
-             // add known friends
-            for (const friend of playersData[i].friendIds) {
-                this.players[i].friends.push(this.players[friend]);
+            // add known friends
+            if (this.settings.friendsKnown) {
+                for (const friend of playersData[i].friendIds) {
+                    this.players[i].friends.push(this.players[friend]);
+                    this.players[i].print();
+                }
             }
 
             if (this.protocol) {
@@ -58,12 +61,10 @@ class Game {
     }
 
     createStack(stackData) {
-        console.log(stackData[0]);
         stackData.forEach(content => {
-            console.log(content);
             const c = content.card;
             const p = content.playerId;
-            this.stack.addCard(new Card(this,c.symbol, c.suit), this.players[p]);
+            this.stack.addCard(new Card(this, c.symbol, c.suit), this.players[p]);
         });
     }
 
@@ -81,9 +82,8 @@ class Game {
             if (this.protocol) {
                 for (const p of this.players) {
                     p.print();
-                    p.printCards();
+                    //p.printCards();
                 }
-
                 console.log("Game Ended");
             }
         }
@@ -107,9 +107,9 @@ class Game {
             "suit": this.settings.suit,
             "annPlayer": this.settings.annPlayer,
             "currentPlayer": this.currentPlayer.id,
-            "round": this.round, 
+            "round": this.round,
             "stack": this.stack.getJSON(),
-            "players": [this.players[0].getJSON(),this.players[1].getJSON(),this.players[2].getJSON(),this.players[3].getJSON()]
+            "players": [this.players[0].getJSON(), this.players[1].getJSON(), this.players[2].getJSON(), this.players[3].getJSON()]
         }
     }
 

@@ -82,10 +82,7 @@ class Player {
     }
 
     print() {
-        if (this.game.protocol) {
-            console.log(`Player ${this.id} -> Score: ${this.score}, total: ${this.getTotalScore()}, Friends: ${this.friends.length} `);
-        }
-
+        console.log(`Player ${this.id} -> Score: ${this.score}, total: ${this.getTotalScore()}, Friends: ${this.friends.length} `);
     }
     printCards() {
         for (const card of this.cards) card.print();
@@ -107,7 +104,8 @@ class Player {
         return {
             name: `Player ${this.id}`,
             cards: cards,
-            friendIds: friendIds
+            friendIds: friendIds,
+            score: this.score
         }
     }
 
