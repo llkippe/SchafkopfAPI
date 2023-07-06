@@ -15,6 +15,7 @@ testData = {
     "currentPlayer": 0,
     "round": 0,
     "friendKnown": false,
+    "gameEnded": false,
 
 
     "stack": [
@@ -135,15 +136,15 @@ const winner2 = game2.getWinner();
 console.log(winner2);
 */
 
-
-/*
-while(game.round < 0) {
-    game.currentPlayer.createValidCards();
-    const validCards = game.currentPlayer.validCards;
-    game.currentPlayer.playCard(validCards[0]);
-}*/
-
 const game = new Game(true ,0, testData);
+
+//while(game.round < 5) {
+    //game.currentPlayer.createValidCards();
+    //const validCards = game.currentPlayer.validCards;
+ //   game.currentPlayer.playCard();
+//}
+
+
 
 //while(!game.gameEnded) {
     const simulation = new Simulation(game,game.currentPlayer.id);

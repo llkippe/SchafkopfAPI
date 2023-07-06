@@ -14,6 +14,7 @@ class Player {
 
         if (card && this.isCardInValidCards(card)) {
             this.removeCard(card);
+            console.log("card removed: " + card.symbol + card.suit)
             this.game.stack.addCard(card, this);
 
             return true;
@@ -68,7 +69,7 @@ class Player {
         return false;
     }
 
-    removeCard(card, randIndex, length) {
+    removeCard(card) {
         this.cards = this.cards.filter(c => !c.isCard(card.symbol, card.suit));
         return;
     }

@@ -9,7 +9,7 @@ class Game {
         this.id = id;
         this.protocol = protocol;
         this.round = gamedata.round;
-        this.gameEnded = false;
+        this.gameEnded = gamedata.gameEnded;
 
 
         this.settings = new Settings(this, gamedata.type, gamedata.suit, gamedata.annPlayer, gamedata.friendsKnown);
@@ -108,6 +108,7 @@ class Game {
             "annPlayer": this.settings.annPlayer,
             "currentPlayer": this.currentPlayer.id,
             "round": this.round,
+            "gameEnded": this.gameEnded,
             "stack": this.stack.getJSON(),
             "players": [this.players[0].getJSON(), this.players[1].getJSON(), this.players[2].getJSON(), this.players[3].getJSON()]
         }
