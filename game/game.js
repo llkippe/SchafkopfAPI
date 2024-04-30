@@ -5,8 +5,7 @@ const Card = require('./card.js');
 
 
 class Game {
-    constructor(protocol, id, gamedata) {
-        this.id = id;
+    constructor(protocol, gamedata) {
         this.protocol = protocol;
         this.round = gamedata.round;
         this.gameEnded = gamedata.gameEnded;
@@ -49,7 +48,14 @@ class Game {
             if (this.settings.friendsKnown) {
                 for (const friend of playersData[i].friendIds) {
                     this.players[i].friends.push(this.players[friend]);
-                    this.players[i].print();
+                    
+                    //this.players[i].print();
+                }
+            }else{
+                if(this.settings.type == "Sauspiel") {
+                    if(this.players[i].isAnnoucedAceInCards()){
+                        this.players[i].friends.push(this.players[this.settings.annPlayer]);
+                    }
                 }
             }
 
@@ -109,6 +115,7 @@ class Game {
             "currentPlayer": this.currentPlayer.id,
             "round": this.round,
             "gameEnded": this.gameEnded,
+            "friendsKnown": this.settings.friendsKnown,
             "stack": this.stack.getJSON(),
             "players": [this.players[0].getJSON(), this.players[1].getJSON(), this.players[2].getJSON(), this.players[3].getJSON()]
         }

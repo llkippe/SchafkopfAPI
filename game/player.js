@@ -14,7 +14,6 @@ class Player {
 
         if (card && this.isCardInValidCards(card)) {
             this.removeCard(card);
-            console.log("card removed: " + card.symbol + card.suit)
             this.game.stack.addCard(card, this);
 
             return true;
@@ -34,11 +33,15 @@ class Player {
     }
 
     createValidCards() {
+        /*
+          when the accAss color is played you have to play ann Ace  
+        */
         // stack empty
         const stackC = this.game.stack.content;
 
         if (stackC.length == 0) { // first to play
             this.validCards = [...this.cards];
+            this.handleAnnouncedAceInValidCards();
             return;
         }
 
@@ -49,7 +52,13 @@ class Player {
             const firstSuit = stackC[0].card.suit;
             this.validCards = this.cards.filter(c => !c.isTrump() && firstSuit == c.suit);
         }
-        if (this.validCards.length > 0) return;
+
+        if (this.validCards.length > 0) {
+            // sauass zwang
+            this.handleAnnouncedAceInValidCards();
+
+            return;
+        }
 
         // no available cards in color 
         this.validCards = [...this.cards];
@@ -67,6 +76,46 @@ class Player {
             if (c.isCard(card.symbol, card.suit)) return true;
         }
         return false;
+    }
+
+    isAnnoucedAceInValidCards() {
+        for (let i = 0; i < this.validCards.length; i++) {
+            const card = this.validCards[i];
+            if (this.game.settings.isAnnoucedAce(card)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isAnnoucedAceInCards() {
+        for (let i = 0; i < this.cards.length; i++) {
+            const card = this.cards[i];
+            if (this.game.settings.isAnnoucedAce(card)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    handleAnnouncedAceInValidCards() {
+        if (this.isAnnoucedAceInValidCards() && !this.game.settings.friendsKnown && this.numberOfCardsOfSuitInValidCards(this.game.settings.suit) < 4) {
+            for (let i = 0; i < this.validCards.length; i++) {
+                const card = this.validCards[i];
+                if (!this.game.settings.isAnnoucedAce(card) && this.game.settings.suit == card.suit) {
+                    this.validCards.splice(i, 1);
+                    return;
+                }
+            }
+        }
+    }
+
+    numberOfCardsOfSuitInValidCards(suit) {
+        let number = 0;
+        this.validCards.forEach(card => {
+            if (card.suit == suit) number++;
+        })
+        return number;
     }
 
     removeCard(card) {
@@ -94,7 +143,7 @@ class Player {
         const friendIds = [];
 
         this.cards.forEach(c => {
-            cards.push({"symbol": c.symbol, "suit": c.suit });
+            cards.push({ "symbol": c.symbol, "suit": c.suit });
         });
 
         this.friends.forEach(f => {
