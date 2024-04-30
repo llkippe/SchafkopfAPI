@@ -17,7 +17,7 @@ class Simulation {
     }
 
     this.root = new mctsNode(this.game, [], this.playerId, this.protocol);
-    const mctsDepth = 20;
+    const mctsDepth = 1;
 
     // evalute more when its a first card, maybe with higher exploration?
 
@@ -25,6 +25,7 @@ class Simulation {
       this.root.mcts();
     }
 
+    console.log("displaying tree")
     this.root.displayTree();
 
     let maxChild = {
@@ -49,6 +50,9 @@ class Simulation {
   }
 }
 
+
+
+
 class mctsNode {
   constructor(game, cards, playerId, protocol) {
     this.protocol = protocol;
@@ -63,22 +67,24 @@ class mctsNode {
     this.totalScore = 0;
     this.totalGamesPlayed = 0;
     this.children = [];
+
+    this.determinize();
   }
 
   mcts() {
-    /*if(this.gameJSON.gameEnded) {
-            return {
-                totalScore: this.totalScore,
-                totalGamesPlayed: this.totalGamesPlayed
-            }
-        }*/
+    // make a node for each player and let them play as good as possible for them using mcts
+
+    // determinize
+    // shuffle cards randomly 
 
     // selection
+    // select the next child to look for based on UCT score
     if (this.children.length > 0) {
       this.selection();
     }
 
     // expansion
+    // expand after the own was simulated
     if (this.totalGamesPlayed > 0 && this.children.length == 0) {
       this.expansion();
     }
@@ -95,27 +101,26 @@ class mctsNode {
 
   simulate() {
     if (this.protocol) {
-      console.log("SIMULATE!" + this.totalGamesPlayed + "  " + this.totalScore);
+      console.log("SIMULATE! games played:" + this.totalGamesPlayed + "  totalScore (of player id):" + this.totalScore);
       if (this.card) this.printCards("");
       else console.log("nn");
-
-      if (this.totalGamesPlayed > 0)
-        console.log("simulating multiple times " + this.totalGamesPlayed);
     }
 
-    const TIMES_RUNNING = 100;
+    const TIMES_RUNNING = 1;
     let sumSimulatedScores = 0;
 
     for (let i = 0; i < TIMES_RUNNING; i++) {
-      const simGame = new Game(false, this.game.getJSON());
-      const playingCardOrder = this.cards.slice();
+      const simGame = new Game(true, this.game.getJSON());
       // hier neue random games todo, shuffle alle nicht playerId cards
 
-      while (!simGame.gameEnded) {
-        if ((simGame.currentPlayer.id = this.playerId)) {
-          // play card according to mcts tree if possible
-          if (playingCardOrder.length == 0) continue;
+      // index which card should be played next according to mcts tree
+      const playingCardOrderIndex = 0;
 
+      while (!simGame.gameEnded) {
+        if (simGame.currentPlayer.id = this.playerId) {
+          // play card according to mcts tree as long possible
+          if (playingCardOrderIndex >= playingCardOrder.length) continue;
+          
           const playingCardWasPossible = simGame.currentPlayer.playCard(
             playingCardOrder.shift()
           );
@@ -209,6 +214,48 @@ class mctsNode {
     this.totalGamesPlayed += backpropagation.totalGamesPlayed;
     this.totalScore += backpropagation.totalScore;
   }
+
+  determinize() {
+    if (this.protocol) {
+      console.log("DETERMINIZE!" + this.totalGamesPlayed + "  " + this.totalScore);
+      if (this.cards) this.printCards("");
+      else console.log("nn");
+    }
+
+    let playerCards = [];
+
+    this.game.players.forEach(player => {
+      if(this.playerId == player.id) playerCards.push([]);
+      else playerCards.push(player.cards); 
+    });  
+
+    const playerCardsNew = this.shuffleElementsAmongArrays(playerCards[0],playerCards[1],playerCards[2],playerCards[3]);
+
+    this.game.players.forEach(player => {
+      if(this.playerId != player.id) player.cards = playerCardsNew[player.id];
+      // else in first 30% also shuffle my cards ? https://www.youtube.com/watch?v=IQLkPgkLMNg
+    });  
+
+    //console.log(playerCardsNew)
+
+    // TODO: if ann player has ruf ass dann swape karten !!!!
+  }
+
+  shuffleElementsAmongArrays(...arrays) {
+    const flattenedArray = arrays.flat();
+    const shuffledIndices = [...Array(flattenedArray.length).keys()].sort(() => Math.random() - 0.5);
+    let index = 0;
+    return arrays.map(arr => {
+        const shuffledArray = [];
+        for (let i = 0; i < arr.length; i++) {
+            shuffledArray.push(flattenedArray[shuffledIndices[index]]);
+            index++;
+        }
+        return shuffledArray;
+    });
+  }
+
+ 
 
   calculateUCT(totalGamesPlayedParent) {
     const usc_CONSTANT = 15;

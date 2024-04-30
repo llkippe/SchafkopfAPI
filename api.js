@@ -88,7 +88,7 @@ testData = {
 testData2 = {
   type: "Sauspiel", // Sauspiel, Wenz, Farbsolo, Ramsch
   suit: "b",
-  annPlayer: 1,
+  annPlayer: 0,
   currentPlayer: 1,
   round: 6,
   friendsKnown: false,
@@ -115,8 +115,9 @@ testData2 = {
     {
       name: "Player 2",
       cards: [
-        { symbol: "K", suit: "b" },
-        { symbol: "K", suit: "e" }
+        { symbol: "A", suit: "b" },
+        { symbol: "8", suit: "b" }
+        
       ],
       friendIds: [],
       score: 44,
@@ -124,9 +125,8 @@ testData2 = {
     {
       name: "Player 3",
       cards: [
-        { symbol: "A", suit: "b" },
-        { symbol: "8", suit: "b" }
-        
+        { symbol: "K", suit: "b" },
+        { symbol: "K", suit: "e" }
       ],
       friendIds: [],
       score: 0,
@@ -148,6 +148,35 @@ const game = new Game(false, testData2);
 const simulation = new Simulation(game, 1);
 console.log(simulation.findBestCard());
 
+/*
+function shuffleElementsAmongArrays(...arrays) {
+  const flattenedArray = arrays.flat();
+  const shuffledIndices = [...Array(flattenedArray.length).keys()].sort(() => Math.random() - 0.5);
+  let index = 0;
+  return arrays.map(arr => {
+      const shuffledArray = [];
+      for (let i = 0; i < arr.length; i++) {
+          shuffledArray.push(flattenedArray[shuffledIndices[index]]);
+          index++;
+      }
+      return shuffledArray;
+  });
+}
+
+// Example usage
+
+const array1 = [1, 2, 3, 4, 5];
+const array2 = ['a', 'b', 'c', 'd', 'e', 'f'];
+const array3 = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'asdfsadf', 'asdfds', 'fsfasdf'];
+const array4 = [];
+
+const [shuffledArray1, shuffledArray2, shuffledArray3, shuffledArray4] = shuffleElementsAmongArrays(array1, array2, array3, array4);
+
+console.log(shuffledArray1);
+console.log(shuffledArray2);
+console.log(shuffledArray3);
+console.log(shuffledArray4);
+*/
 
 /*
 const TIMES_RUNNING = 100000;
