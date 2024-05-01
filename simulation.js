@@ -18,7 +18,7 @@ class Simulation {
     }
 
     this.root = new mctsNode(this.game, [], this.botId, this.botId, this.protocol);
-    const mctsDepth = 10;
+    const mctsDepth = 100;
 
     // evalute more when its a first card, maybe with higher exploration?
 
@@ -50,7 +50,6 @@ class Simulation {
     return maxChild.child.card;
   }
 }
-
 
 
 

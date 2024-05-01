@@ -205,104 +205,75 @@ testData3 = {
 };
 
 
-const game = new Game(false, testData3);
-const simulation = new Simulation(game);
-console.log(simulation.findBestCard());
+//const game = new Game(false, testData3);
+//const simulation = new Simulation(game);
+//console.log(simulation.findBestCard());
+
+test(70, testData3);
 
 
-// write test if sim is better than playing random in avg
+function test(TIMES_RUNNING, gameData, botId = 0) {
+  
+  // play random games
+  let winnerAvgRandom = [0, 0, 0, 0];
+  let timeAvgRandom = 0;
 
-/*
-function shuffleElementsAmongArrays(...arrays) {
-  const flattenedArray = arrays.flat();
-  const shuffledIndices = [...Array(flattenedArray.length).keys()].sort(() => Math.random() - 0.5);
-  let index = 0;
-  return arrays.map(arr => {
-      const shuffledArray = [];
-      for (let i = 0; i < arr.length; i++) {
-          shuffledArray.push(flattenedArray[shuffledIndices[index]]);
-          index++;
-      }
-      return shuffledArray;
-  });
-}
+  for (let i = 0; i < TIMES_RUNNING; i++) {
+    const startTime = process.hrtime();
+    const game = new Game(false, gameData);
 
-// Example usage
+    while (!game.gameEnded) {
+      game.currentPlayer.playCard();
+    }
+    
+    const winner = game.getWinner();
+    for (const w of winner) {
+      winnerAvgRandom[w]++;
+    }
 
-const array1 = [1, 2, 3, 4, 5];
-const array2 = ['a', 'b', 'c', 'd', 'e', 'f'];
-const array3 = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'asdfsadf', 'asdfds', 'fsfasdf'];
-const array4 = [];
-
-const [shuffledArray1, shuffledArray2, shuffledArray3, shuffledArray4] = shuffleElementsAmongArrays(array1, array2, array3, array4);
-
-console.log(shuffledArray1);
-console.log(shuffledArray2);
-console.log(shuffledArray3);
-console.log(shuffledArray4);
-*/
-
-/*
-const TIMES_RUNNING = 100000;
-winnerAvg = [0, 0, 0, 0];
-timeAvg = 0;
-
-for (let i = 0; i < TIMES_RUNNING; i++) {
-  const startTime = process.hrtime();
-  const game = new Game(false, testData);
-
-  while (!game.gameEnded) {
-    game.currentPlayer.playCard();
-  }
-  const winner = game.getWinner();
-  for (const w of winner) {
-    winnerAvg[w]++;
+    const endTime = process.hrtime(startTime);
+    const executionTime = endTime[0] * 1000 + endTime[1] / 1000000;
+    timeAvgRandom += executionTime;
   }
 
-  const endTime = process.hrtime(startTime);
-  const executionTime = endTime[0] * 1000 + endTime[1] / 1000000;
-  timeAvg += executionTime;
+  
+
+
+  // play sim games
+  let winnerAvgSim = [0, 0, 0, 0];
+  let timeAvgSim = 0; 
+  for (let i = 0; i < TIMES_RUNNING; i++) {
+    const startTime = process.hrtime();
+    const game = new Game(false, gameData); 
+    while (!game.gameEnded) {
+      if(game.currentPlayer.id == botId) {
+        const simulation = new Simulation(game);
+        game.currentPlayer.playCard(simulation.findBestCard());
+      } 
+      game.currentPlayer.playCard();
+    } 
+    const winner = game.getWinner();
+    for (const w of winner) {
+      winnerAvgSim[w]++;
+    }
+
+    const endTime = process.hrtime(startTime);
+    const executionTime = endTime[0] * 1000 + endTime[1] / 1000000;
+    timeAvgSim += executionTime;
+  } 
+  
+  
+
+
+  console.log(`TEST  TIMES RUNNING: ${TIMES_RUNNING}, BOTID: ${botId}`)
+  console.log(`random winner:    ${winnerAvgRandom}`);
+  console.log(`random simulaton: ${winnerAvgSim}`);
+  console.log(`TIME per game`)
+  console.log(`random    ${(timeAvgRandom / TIMES_RUNNING).toFixed(2)}ms`)
+  console.log(`simulated ${(timeAvgSim / TIMES_RUNNING).toFixed(2)}ms`)
+  const performanceIncreasse =  (winnerAvgSim[botId] / winnerAvgRandom[botId] * 100 - 100).toFixed(2);
+  console.log(`Performance Boost:  ${performanceIncreasse}%`);
 }
 
-console.log(winnerAvg);
-
-console.log(timeAvg, timeAvg / TIMES_RUNNING);
-*/
 
 
-/*
-const game1 = new Game(true ,0, testData);
-
-const game2 = new Game(true, 1, game1.getJSON());
-
-
-while(!game1.gameEnded) {
-game1.currentPlayer.createValidCards();
-const validCards1 = game1.currentPlayer.validCards;
-game1.currentPlayer.playCard(validCards1[0]);
-game2.currentPlayer.createValidCards();
-const validCards2 = game2.currentPlayer.validCards;
-game2.currentPlayer.playCard(validCards2[0]);
-}
-
-const winner1 = game1.getWinner();
-console.log(winner1);
-const winner2 = game2.getWinner();
-console.log(winner2);
-*/
-
-//let game = new Game(true ,0, testData);
-
-//while(game.round < 5) {
-//game.currentPlayer.createValidCards();
-//const validCards = game.currentPlayer.validCards;
-//   game.currentPlayer.playCard();
-//}
-
-/*
-while(!game.gameEnded) {
-    const simulation = new Simulation(game,game.currentPlayer.id);
-    const card = simulation.findBestCard();
-    game.currentPlayer.playCard(card);
-    //game = new Game(true,0,game.getJSON());
-}*/
