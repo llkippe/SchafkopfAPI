@@ -115,9 +115,9 @@ testData2 = {
     {
       name: "Player 2",
       cards: [
-        { symbol: "A", suit: "b" },
-        { symbol: "8", suit: "b" }
         
+        { symbol: "8", suit: "e" },
+        { symbol: "A", suit: "b" }
       ],
       friendIds: [],
       score: 44,
@@ -126,7 +126,7 @@ testData2 = {
       name: "Player 3",
       cards: [
         { symbol: "K", suit: "b" },
-        { symbol: "K", suit: "e" }
+        { symbol: "K", suit: "e" },
       ],
       friendIds: [],
       score: 0,
@@ -134,7 +134,7 @@ testData2 = {
     {
       name: "Player 4",
       cards: [
-        { symbol: "8", suit: "e" },
+        { symbol: "9", suit: "e" },
         { symbol: "10", suit: "b" }
       ],
       friendIds: [],
@@ -144,9 +144,73 @@ testData2 = {
 };
 
 
-const game = new Game(false, testData2);
-const simulation = new Simulation(game, 1);
+testData3 = {
+  type: "Sauspiel", // Sauspiel, Wenz, Farbsolo, Ramsch
+  suit: "b",
+  annPlayer: 2,
+  currentPlayer: 0,
+  round: 4,
+  friendsKnown: false,
+  gameEnded: false,
+
+  stack: [],
+
+  players: [
+    {
+      name: "Player 1",
+      cards: [
+        { symbol: "A", suit: "s" },
+        { symbol: "10", suit: "h" },
+        { symbol: "U", suit: "e" },
+        { symbol: "9", suit: "s" }
+      ],
+      friendIds: [],
+      score: 7,
+    },
+    {
+      name: "Player 2",
+      cards: [
+        
+        { symbol: "8", suit: "e" },
+        { symbol: "O", suit: "h" },
+        { symbol: "7", suit: "e" },
+        { symbol: "A", suit: "b" }
+      ],
+      friendIds: [],
+      score: 25,
+    },
+    {
+      name: "Player 3",
+      cards: [
+        { symbol: "K", suit: "b" },
+        { symbol: "7", suit: "s" },
+        { symbol: "8", suit: "h" },
+        { symbol: "K", suit: "e" },
+      ],
+      friendIds: [],
+      score: 0,
+    },
+    {
+      name: "Player 4",
+      cards: [
+        { symbol: "9", suit: "e" },
+        { symbol: "7", suit: "h" },
+        { symbol: "U", suit: "s" },
+        { symbol: "10", suit: "b" }
+      ],
+      friendIds: [],
+      score: 15,
+    },
+  ],
+};
+
+
+const game = new Game(false, testData3);
+const simulation = new Simulation(game);
 console.log(simulation.findBestCard());
+
+
+// write test if sim is better than playing random in avg
 
 /*
 function shuffleElementsAmongArrays(...arrays) {
