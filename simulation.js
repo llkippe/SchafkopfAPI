@@ -69,10 +69,6 @@ class mctsNode {
     this.totalScore = 0;
     this.totalGamesPlayed = 0;
     this.children = [];
-
-    // determinize
-    // shuffle cards randomly 
-    this.determinize();
   }
 
   mcts() {
@@ -117,7 +113,7 @@ class mctsNode {
     let sumSimulatedScores = 0;
 
     for (let i = 0; i < TIMES_RUNNING; i++) {
-      const simGame = new Game(false, this.game.getJSON());
+      const simGame = this.determinize(new Game(false, this.game.getJSON()));
 
       while (!simGame.gameEnded) {
         simGame.currentPlayer.playCard();
@@ -195,7 +191,7 @@ class mctsNode {
     this.totalScore += backpropagation.totalScore;
   }
 
-  determinize() {
+  determinize(detGame) {
     if (this.protocol) {
       console.log("DETERMINIZE!" + this.totalGamesPlayed + "  " + this.totalScore);
       if (this.card) console.log(this.card.symbol + " " + this.card.suit);
@@ -204,45 +200,43 @@ class mctsNode {
 
     let playerCards = [];
 
-    this.game.players.forEach(player => {
+    detGame.players.forEach(player => {
       if(this.botId == player.id) playerCards.push([]);
       else playerCards.push(player.cards); 
     });  
 
     const playerCardsNew = this.shuffleElementsAmongArrays(playerCards[0],playerCards[1],playerCards[2],playerCards[3]);
 
-    this.game.players.forEach(player => {
+    detGame.players.forEach(player => {
       if(this.botId != player.id) player.cards = playerCardsNew[player.id];
       // else in first 30% also shuffle my cards ? https://www.youtube.com/watch?v=IQLkPgkLMNg
     });
 
     // include step to make annc player cards better than other cards of non anc players
 
-
-    console.log(playerCardsNew)
-    console.log(this.game.players[this.game.settings.annPlayer].isAnnoucedAceInCards())
-
     // if ann player has ruf ass dann swape karten !!!!
-    if(this.game.players[this.game.settings.annPlayer].isAnnoucedAceInCards()) {
-      const annAce = {symbol: "A", suit: this.game.settings.suit};
+    if(detGame.players[detGame.settings.annPlayer].isAnnoucedAceInCards()) {
+      const annAce = {symbol: "A", suit: detGame.settings.suit};
 
       // remove ace
-      this.game.players[this.game.settings.annPlayer].removeCard(annAce);
+      detGame.players[detGame.settings.annPlayer].removeCard(annAce);
 
       let cardAdded = false
-      this.game.players.forEach(player => {
-        if(!cardAdded && this.game.settings.annPlayer != player.id && this.botId != player.id) {
+      detGame.players.forEach(player => {
+        if(!cardAdded && detGame.settings.annPlayer != player.id && this.botId != player.id) {
           const swapCard = player.cards.shift();
 
           // add first card from swaping partner 
-          this.game.players[this.game.settings.annPlayer].cards.push(swapCard);
+          detGame.players[detGame.settings.annPlayer].cards.push(swapCard);
           // add ace to swaping partner
-          player.cards.push(new Card(this.game, annAce.symbol, annAce.suit));
+          player.cards.push(new Card(detGame, annAce.symbol, annAce.suit));
           
           cardAdded = true;
         } 
       });
     }
+
+    return detGame;
   }
 
   shuffleElementsAmongArrays(...arrays) {
