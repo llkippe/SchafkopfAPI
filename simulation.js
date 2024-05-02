@@ -27,19 +27,19 @@ class Simulation {
     }
 
     //console.log("displaying tree")
-   // this.root.displayTree();
+    //this.root.displayTree();
 
     let maxChild = {
       avgScore:
         this.root.children[0].totalScore /
-        this.root.children[0].totalGamesPlayed,
+        this.root.children[0].gamesPlayed,
       child: this.root.children[0],
     };
 
     for (let i = 1; i < this.root.children.length; i++) {
       const avgScore =
         this.root.children[i].totalScore /
-        this.root.children[i].totalGamesPlayed;
+        this.root.children[i].gamesPlayed;
 
       if (maxChild.avgScore < avgScore) {
         maxChild.avgScore = avgScore;
@@ -54,7 +54,7 @@ class Simulation {
 
 
 class mctsNode {
-  constructor(game, card, playerCardIdChild, botId, protocol) {
+  constructor(game, card, playerCardId, botId, protocol) {
     this.protocol = protocol;
 
     if (card && this.protocol) {
@@ -64,9 +64,9 @@ class mctsNode {
     this.game = game;
     this.card = card;
     this.botId = botId;
-    this.playerCardIdChild = playerCardIdChild;
-    this.totalScore = 0;
-    this.totalGamesPlayed = 0;
+    this.playerCardId = playerCardId;
+    this.scores = [0,0,0,0];
+    this.gamesPlayed = 0;
     this.children = [];
   }
 
@@ -74,8 +74,8 @@ class mctsNode {
     // make a node for each player and let them play as good as possible for them using mcts
     if(this.game.gameEnded) {
       return {
-        totalScore: this.game.players[this.playerCardIdChild].getTotalScore(), // the score of the player that played the last card
-        totalGamesPlayed: 1,
+        scores: this.game.getTotalScores(),
+        gamesPlayed: 1
       };
     }
 
@@ -87,29 +87,29 @@ class mctsNode {
 
     // expansion
     // expand after the own was simulated
-    if (this.totalGamesPlayed > 0 && this.children.length == 0) {
+    if (this.gamesPlayed > 0 && this.children.length == 0) {
       this.expansion();
     }
 
     // simulation
-    if (this.totalGamesPlayed == 0) this.simulate();
+    if (this.gamesPlayed == 0) this.simulate();
 
     // backpropagation
     return {
-      totalScore: this.totalScore,
-      totalGamesPlayed: this.totalGamesPlayed,
+      scores: this.scores,
+      gamesPlayed: this.gamesPlayed,
     };
   }
 
   simulate() {
     if (this.protocol) {
-      console.log(`SIMULATE!"  playerid: ${this.playerCardIdChild}, games played: ${this.totalGamesPlayed}, totalScore: ${this.totalScore}`);
+      console.log(`SIMULATE!"  playerid: ${this.playerCardId}, games played: ${this.gamesPlayed}, scores: ${this.scores}`);
       if (this.card) console.log(this.card.symbol + " " + this.card.suit);
       else console.log("nn");
     }
 
-    const TIMES_RUNNING = 100;
-    let sumSimulatedScores = 0;
+    const TIMES_RUNNING = 50;
+    let sumSimulatedScores = [0,0,0,0];
 
     for (let i = 0; i < TIMES_RUNNING; i++) {
       const simGame = this.determinize(new Game(false, this.game.getJSON()));
@@ -117,25 +117,31 @@ class mctsNode {
       while (!simGame.gameEnded) {
         simGame.currentPlayer.playCard();
       }
-      
-      // TODO not the current player but the player who played the last card
-      // use the scores always for the currentplayer not the player we want to choose the card for in the end
-      sumSimulatedScores += simGame.players[this.playerCardIdChild].getTotalScore();
+    
+      // save all scores
+      const endScore = simGame.getTotalScores();
+      for(let i = 0; i < 4; i++) {
+        sumSimulatedScores[i] += endScore[i];
+      }
     }
 
-    this.totalScore += sumSimulatedScores / TIMES_RUNNING; // avg score of player with playerId
+    // add avg of simulation to node scores
+    for(let i = 0; i < 4; i++) {
+      this.scores[i] += sumSimulatedScores[i] / TIMES_RUNNING;
+    }
 
-    if (this.protocol) console.log(sumSimulatedScores / TIMES_RUNNING);
+    if (this.protocol) {
+      console.log(this.scores);
+    }
 
-    this.totalGamesPlayed++;
+    this.gamesPlayed++;
   }
 
   expansion() {
     if (this.protocol) {
-      console.log("EXPAND!" + this.totalGamesPlayed + "  " + this.totalScore);
+      console.log("EXPAND!" + this.gamesPlayed + "  " + this.scores);
       if (this.card) console.log(this.card.symbol + " " + this.card.suit);
       else console.log("nn");
-      // console.log(this.gameJSON.players[this.playerId].cards)
     }
 
     this.game.currentPlayer.createValidCards();
@@ -154,27 +160,30 @@ class mctsNode {
 
     // TODO: add and subtract the scores depending if its own or enemies score create function
 
+    // TODO: does this step need to be here? wouldnt also be selected in next round of selection
     if (this.children.length > 0) {
       const backpropagation = this.children[0].mcts();
-      this.totalGamesPlayed += backpropagation.totalGamesPlayed;
-      this.totalScore += backpropagation.totalScore;
+      this.gamesPlayed += backpropagation.gamesPlayed;
+      for(let i = 0; i < 4; i++) {
+        this.scores[i] += backpropagation.scores[i];
+      }
     }
   }
 
   selection() {
     if (this.protocol) {
-      console.log("SELECT!" + this.totalGamesPlayed + "  " + this.totalScore);
+      console.log("SELECT!" + this.gamesPlayed + "  " + this.scores);
       if (this.card) console.log(this.card.symbol + " " + this.card.suit);
       else console.log("nn");
     }
 
     let maxChild = {
-      usc: this.children[0].calculateUCT(this.totalGamesPlayed),
+      usc: this.children[0].calculateUCT(this.gamesPlayed),
       child: this.children[0],
     };
 
     for (let i = 1; i < this.children.length; i++) {
-      const uscI = this.children[i].calculateUCT(this.totalGamesPlayed);
+      const uscI = this.children[i].calculateUCT(this.gamesPlayed);
       if (this.protocol) console.log(i, uscI);
       if (maxChild.usc < uscI) {
         maxChild.usc = uscI;
@@ -186,35 +195,28 @@ class mctsNode {
 
      // TODO: add and subtract the scores depending if its own or enemies score
     const backpropagation = maxChild.child.mcts();
-    this.totalGamesPlayed += backpropagation.totalGamesPlayed;
-    this.totalScore += backpropagation.totalScore;
+    this.gamesPlayed += backpropagation.gamesPlayed;
+    for(let i = 0; i < 4; i++) {
+      this.scores[i] += backpropagation.scores[i];
+    }
   }
 
   determinize(detGame) {
     if (this.protocol) {
-      console.log("DETERMINIZE!" + this.totalGamesPlayed + "  " + this.totalScore);
+      console.log("DETERMINIZE!" + this.gamesPlayed + "  " + this.scores);
       if (this.card) console.log(this.card.symbol + " " + this.card.suit);
       else console.log("nn");
     }
 
-    let playerCards = [];
 
-    detGame.players.forEach(player => {
-      if(this.botId == player.id) playerCards.push([]);
-      else playerCards.push(player.cards); 
-    });  
-
-    const playerCardsNew = this.shuffleElementsAmongArrays(playerCards[0],playerCards[1],playerCards[2],playerCards[3]);
-
-    detGame.players.forEach(player => {
-      if(this.botId != player.id) player.cards = playerCardsNew[player.id];
-      // else in first 30% also shuffle my cards ? https://www.youtube.com/watch?v=IQLkPgkLMNg
-    });
+    detGame.shuffleCardsApartFrom(this.botId);
+    // else in first 30% also shuffle my cards ? https://www.youtube.com/watch?v=IQLkPgkLMNg
 
     // include step to make annc player cards better than other cards of non anc players
+    
 
     // if ann player has ruf ass dann swape karten !!!!
-    if(detGame.players[detGame.settings.annPlayer].isAnnoucedAceInCards()) {
+   /* if(detGame.players[detGame.settings.annPlayer].isAnnoucedAceInCards()) {
       const annAce = {symbol: "A", suit: detGame.settings.suit};
 
       // remove ace
@@ -234,7 +236,7 @@ class mctsNode {
         } 
       });
     }
-
+*/
     return detGame;
   }
 
@@ -254,12 +256,12 @@ class mctsNode {
 
  
 
-  calculateUCT(totalGamesPlayedParent) {
+  calculateUCT(gamesPlayedParent) {
     const usc_CONSTANT = 10; // which is higher exploratiopn which explotation
-    if (this.totalGamesPlayed == 0) return Number.POSITIVE_INFINITY;
+    if (this.gamesPlayed == 0) return Number.POSITIVE_INFINITY;
     return (
-      this.totalScore / this.totalGamesPlayed +
-      usc_CONSTANT * Math.sqrt(Math.log(totalGamesPlayedParent) / this.totalGamesPlayed)
+      this.scores[this.playerCardId] / this.gamesPlayed +
+      usc_CONSTANT * Math.sqrt(Math.log(gamesPlayedParent) / this.gamesPlayed)
     );
   }
 

@@ -143,7 +143,6 @@ testData2 = {
   ],
 };
 
-
 testData3 = {
   type: "Sauspiel", // Sauspiel, Wenz, Farbsolo, Ramsch
   suit: "b",
@@ -205,65 +204,73 @@ testData3 = {
 };
 
 
-//const game = new Game(false, testData3);
+/*const game = new Game(false,testData3);
+game.currentPlayer.playCard()
+game.currentPlayer.playCard()
+game.currentPlayer.playCard()
+game.currentPlayer.playCard()
+game.currentPlayer.playCard()
+game.print()
+game.shuffleCardsApartFrom(0);
+game.print();
 //const simulation = new Simulation(game);
 //console.log(simulation.findBestCard());
+*/
 
-test(70, testData3);
+test(80);
 
 
-function test(TIMES_RUNNING, gameData, botId = 0) {
+function test(TIMES_RUNNING, botId = 0, gameData = undefined) {
   
   // play random games
   let winnerAvgRandom = [0, 0, 0, 0];
   let timeAvgRandom = 0;
 
-  for (let i = 0; i < TIMES_RUNNING; i++) {
-    const startTime = process.hrtime();
-    const game = new Game(false, gameData);
+  let winnerAvgSim = [0, 0, 0, 0];
+  let timeAvgSim = 0; 
 
-    while (!game.gameEnded) {
-      game.currentPlayer.playCard();
+  for (let i = 0; i < TIMES_RUNNING; i++) {
+    let gameRandom;
+    if(gameData) gameRandom = new Game(false, gameData); 
+    else gameRandom = new Game(false)
+    const gameSim = new Game(false, gameRandom.getJSON());
+
+    const startTimeRandom = process.hrtime();
+
+    while (!gameRandom.gameEnded) {
+      gameRandom.currentPlayer.playCard();
     }
     
-    const winner = game.getWinner();
-    for (const w of winner) {
+    const winnerRandom = gameRandom.getWinner();
+    for (const w of winnerRandom) {
       winnerAvgRandom[w]++;
     }
 
-    const endTime = process.hrtime(startTime);
-    const executionTime = endTime[0] * 1000 + endTime[1] / 1000000;
-    timeAvgRandom += executionTime;
-  }
-
+    const endTimeRandom = process.hrtime(startTimeRandom);
+    const executionTimeRandom = endTimeRandom[0] * 1000 + endTimeRandom[1] / 1000000;
+    timeAvgRandom += executionTimeRandom;
   
+    // play sim games
+    const startTimeSim = process.hrtime();
 
-
-  // play sim games
-  let winnerAvgSim = [0, 0, 0, 0];
-  let timeAvgSim = 0; 
-  for (let i = 0; i < TIMES_RUNNING; i++) {
-    const startTime = process.hrtime();
-    const game = new Game(false, gameData); 
-    while (!game.gameEnded) {
-      if(game.currentPlayer.id == botId) {
-        const simulation = new Simulation(game);
-        game.currentPlayer.playCard(simulation.findBestCard());
-      } 
-      game.currentPlayer.playCard();
+    while (!gameSim.gameEnded) {
+      if(gameSim.currentPlayer.id == botId) {
+        const simulation = new Simulation(gameSim);
+        gameSim.currentPlayer.playCard(simulation.findBestCard());
+        continue;
+      }
+      gameSim.currentPlayer.playCard();
     } 
-    const winner = game.getWinner();
-    for (const w of winner) {
+    const winnerSim = gameSim.getWinner();
+    for (const w of winnerSim) {
       winnerAvgSim[w]++;
     }
 
-    const endTime = process.hrtime(startTime);
-    const executionTime = endTime[0] * 1000 + endTime[1] / 1000000;
-    timeAvgSim += executionTime;
+    const endTimeSim = process.hrtime(startTimeSim);
+    const executionTimeSim = endTimeSim[0] * 1000 + endTimeSim[1] / 1000000;
+    timeAvgSim += executionTimeSim;
   } 
   
-  
-
 
   console.log(`TEST  TIMES RUNNING: ${TIMES_RUNNING}, BOTID: ${botId}`)
   console.log(`random winner:    ${winnerAvgRandom}`);

@@ -33,12 +33,13 @@ class Player {
     }
 
     createValidCards() {
-        /*
-          when the accAss color is played you have to play ann Ace  
-        */
-        // stack empty
+        if(this.cards == undefined || this.cards.length == 0 ){
+            this.game.print();
+        }
+
         const stackC = this.game.stack.content;
 
+        // stack empty
         if (stackC.length == 0) { // first to play
             this.validCards = [...this.cards];
             this.handleAnnouncedAceInValidCards();
@@ -46,11 +47,22 @@ class Player {
         }
 
         if (stackC[0].card.isTrump()) {
-            this.validCards = this.cards.filter(c => c.isTrump());
+            this.validCards = this.cards.filter(c => {
+                // TODO REMOVE PRINT STATEMENTS fix issue when swaping ace
+                if(c == undefined) {
+                    this.game.print();
+                }
+                c.isTrump()
+            });
         } else {
             // suit 
             const firstSuit = stackC[0].card.suit;
-            this.validCards = this.cards.filter(c => !c.isTrump() && firstSuit == c.suit);
+            this.validCards = this.cards.filter(c => {
+                if(c == undefined) {
+                    this.game.print();
+                }
+                return !c.isTrump() && firstSuit == c.suit
+            });
         }
 
         if (this.validCards.length > 0) {
@@ -135,7 +147,10 @@ class Player {
         console.log(`Player ${this.id} -> Score: ${this.score}, total: ${this.getTotalScore()}, Friends: ${this.friends.length} `);
     }
     printCards() {
-        for (const card of this.cards) card.print();
+        for (const card of this.cards) {
+            if(card == undefined) console.log(card)
+            else card.print();
+        }
     }
 
     getJSON() {
